@@ -4,6 +4,11 @@ import MyContext from './myContext';
 
 function Provider({ children }) {
   const [data, setData] = useState([]);
+  const [name, setName] = useState('');
+
+  const handleName = ({ target }) => {
+    setName(target.value);
+  };
 
   useEffect(() => {
     const requestAPI = async () => {
@@ -21,7 +26,9 @@ function Provider({ children }) {
 
   const context = React.useMemo(() => ({
     data,
-  }), [data]);
+    name,
+    handleName,
+  }), [data, name]);
 
   return (
     <MyContext.Provider value={ context }>
