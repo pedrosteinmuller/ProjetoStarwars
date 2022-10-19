@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import myContext from '../context/myContext';
 
 export default function Table() {
-  const { data, name } = useContext(myContext);
+  const { data, name, handleFilterSelect } = useContext(myContext);
   return (
     <table>
       <thead>
