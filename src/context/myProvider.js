@@ -2,10 +2,19 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import PropTypes from 'prop-types';
 import MyContext from './myContext';
 
+const arrayOptions = [
+  'population',
+  'orbital_period',
+  'diameter',
+  'rotation_period',
+  'surface_water',
+];
+
 function Provider({ children }) {
   const [data, setData] = useState([]);
   const [name, setName] = useState('');
-  const [column, setColumn] = useState('population');
+  const [column, setColumn] = useState(arrayOptions[0]);
+  const [options, setOptions] = useState(arrayOptions);
   const [comparator, setComparator] = useState('maior que');
   const [quanty, setQuanty] = useState(0);
 
@@ -43,9 +52,12 @@ function Provider({ children }) {
     }
       break;
     default:
-      return comparator;
+      break;
     }
-  }, [data, column, comparator, quanty]);
+    const filter = options.filter((item) => item !== column);
+    setOptions(filter);
+    setColumn(filter[0]);
+  }, [comparator, column, quanty, options, data]);
 
   useEffect(() => {
     const requestAPI = async () => {
@@ -67,12 +79,13 @@ function Provider({ children }) {
     column,
     comparator,
     quanty,
+    options,
     handleColumn,
     handleComparator,
     handleQuantity,
     handleName,
     handleFilterSelect,
-  }), [data, name, column, comparator, quanty, handleFilterSelect]);
+  }), [data, name, column, comparator, quanty, options, handleFilterSelect]);
 
   return (
     <MyContext.Provider value={ context }>

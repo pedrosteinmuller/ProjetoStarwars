@@ -8,6 +8,7 @@ export default function Form() {
     column,
     comparator,
     quanty,
+    options,
     handleQuantity,
     handleComparator,
     handleColumn,
@@ -33,11 +34,9 @@ export default function Form() {
           value={ column }
           onChange={ handleColumn }
         >
-          <option value="population">population</option>
-          <option value="Male">orbital_period</option>
-          <option value="diameter">diameter</option>
-          <option value="rotation_period">rotation_period</option>
-          <option value="surface_water">surface_water</option>
+          {
+            options.map((item) => (<option key={ item } value={ item }>{item}</option>))
+          }
         </select>
       </label>
       <label htmlFor="operator">
