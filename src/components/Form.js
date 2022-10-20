@@ -9,10 +9,13 @@ export default function Form() {
     comparator,
     quanty,
     options,
+    removeAll,
     handleQuantity,
     handleComparator,
     handleColumn,
-    handleFilterSelect } = useContext(myContext);
+    handleFilterSelect,
+    filterByNumeric,
+    removeFilter } = useContext(myContext);
   return (
     <form>
       <label htmlFor="name">
@@ -66,6 +69,25 @@ export default function Form() {
       >
         Adicionar Filtro
       </button>
+      <button
+        type="button"
+        data-testid="button-remove-filters"
+        onClick={ removeAll }
+      >
+        Remover Filtros
+      </button>
+      <div>
+        {
+          filterByNumeric?.map((item, index) => (
+            <p key={ index } data-testid="filter">
+              {`${item.column} ${item.comparison} ${item.value}`}
+              <button onClick={ () => removeFilter(item.column) } type="button">
+                Remover
+              </button>
+            </p>
+          ))
+        }
+      </div>
     </form>
   );
 }

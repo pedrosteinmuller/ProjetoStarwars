@@ -7,8 +7,8 @@ import Form from './components/Form';
 function App() {
   return (
     <Provider>
-      <Table />
       <Form />
+      <Table />
     </Provider>
   );
 }

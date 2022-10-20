@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import myContext from '../context/myContext';
 
 export default function Table() {
-  const { data, name } = useContext(myContext);
+  const { data2, name } = useContext(myContext);
   return (
     <table>
       <thead>
@@ -24,7 +24,7 @@ export default function Table() {
       </thead>
       <tbody>
         {
-          data?.filter((el) => el.name.toUpperCase().includes(name.toUpperCase()))
+          data2?.filter((el) => el.name.toUpperCase().includes(name.toUpperCase()))
             .map((item) => (
               <tr key={ item.name }>
                 <td>{ item.name }</td>
