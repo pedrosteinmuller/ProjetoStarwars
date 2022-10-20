@@ -39,27 +39,27 @@ export default function Form() {
           <option value="rotation_period">rotation_period</option>
           <option value="surface_water">surface_water</option>
         </select>
-        <label htmlFor="operator">
-          Operador:
-          <select
-            name="operator"
-            data-testid="comparison-filter"
-            id="operator"
-            value={ comparator }
-            onChange={ handleComparator }
-          >
-            <option value="maior que">maior que</option>
-            <option value="menor que">menor que</option>
-            <option value="igual a">igual a</option>
-          </select>
-        </label>
-        <input
-          type="number"
-          data-testid="value-filter"
-          value={ quanty }
-          onChange={ handleQuantity }
-        />
       </label>
+      <label htmlFor="operator">
+        Operador:
+        <select
+          name="operator"
+          data-testid="comparison-filter"
+          id="operator"
+          value={ comparator }
+          onChange={ handleComparator }
+        >
+          <option value="maior que">maior que</option>
+          <option value="menor que">menor que</option>
+          <option value="igual a">igual a</option>
+        </select>
+      </label>
+      <input
+        type="number"
+        data-testid="value-filter"
+        value={ quanty }
+        onChange={ handleQuantity }
+      />
       <button
         type="button"
         data-testid="button-filter"
