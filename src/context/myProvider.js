@@ -24,23 +24,19 @@ function Provider({ children }) {
   const handleFilter = useCallback((arrayAllFilters) => {
     let newPlanets = data;
     arrayAllFilters.forEach((filter) => {
-      switch (filter.comparison) {
-      case 'maior que': {
-        newPlanets = newPlanets.filter((item) => +item[filter.column] > +filter.value);
-        break;
+      if (filter.comparison === 'maior que') {
+        newPlanets = newPlanets
+          .filter((item) => Number(item[filter.column]) > Number(filter.value));
       }
-      case 'menor que': {
-        newPlanets = newPlanets.filter((item) => +item[filter.column] < +filter.value);
-        break;
+      if (filter.comparison === 'menor que') {
+        newPlanets = newPlanets
+          .filter((item) => Number(item[filter.column]) < Number(filter.value));
+      }
+      if (filter.comparison === 'igual a') {
+        newPlanets = newPlanets
+          .filter((item) => Number(item[filter.column]) === Number(filter.value));
       }
 
-      case 'igual a': {
-        newPlanets = newPlanets.filter((item) => +item[filter.column] === +filter.value);
-        break;
-      }
-      default:
-        break;
-      }
       const filterOptions = options.filter((item) => item !== filter.column);
       setOptions(filterOptions);
       setColumn(filterOptions[0]);
@@ -59,16 +55,13 @@ function Provider({ children }) {
 
   useEffect(() => {
     const requestAPI = async () => {
-      try {
-        const response = await fetch('https://swapi.dev/api/planets');
-        const { results } = await response.json();
-        const result = results.filter((element) => delete element.residents);
-        setData(result);
-        setData2(result);
-      } catch (e) {
-        throw new Error(e.message);
-      }
+      const response = await fetch('https://swapi.dev/api/planets');
+      const { results } = await response.json();
+      const result = results.filter((element) => delete element.residents);
+      setData(result);
+      setData2(result);
     };
+
     requestAPI();
   }, []);
 
@@ -110,7 +103,8 @@ function Provider({ children }) {
       handleFilterSelect,
       removeAll,
       removeFilter,
-    }), [data, name, column, comparator, quanty, data2, options, filterByNumeric,
+    }), [data, name, column, comparator, quanty,
+    data2, options, filterByNumeric,
     handleFilterSelect, removeAll, removeFilter]);
 
   return (<MyContext.Provider value={ context }>{children}</MyContext.Provider>);

@@ -1,7 +1,8 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
+import testData from '../../cypress/mocks/testData';
 
 describe('Testando aplicação StarWars', () => {
   test('Verifica se os elementos de filtrar são renderizados', () => {
@@ -15,13 +16,13 @@ describe('Testando aplicação StarWars', () => {
     expect(operatorSelect).toBeInTheDocument();
     expect(buttonFilter).toBeInTheDocument();
   });
-  test('Verifica interação do usuário na aplicação', () => {
+  test('Verifica interação do usuário na aplicação', async () => {
     render(<App />);
-    const inputName = screen.getByTestId('name-filter');
+    const inputName = screen.getByRole('textbox', { name: /nome:/i });
     const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
-    const comparisonFilter = screen.getByTestId('comparison-filter');
-    const valueFilter = screen.getByTestId('value-filter');
-    const buttonFilter = screen.getByTestId('button-filter');
+    const comparisonFilter = screen.getByRole('combobox', { name: /operador:/i });
+    const valueFilter = screen.getByRole('spinbutton');
+    const buttonFilter = screen.getByRole('button', { name: /adicionar filtro/i });
 
     userEvent.type(inputName, 'Tatooine');
     expect(inputName.value).toBe('Tatooine');
@@ -34,17 +35,100 @@ describe('Testando aplicação StarWars', () => {
 
     userEvent.selectOptions(comparisonFilter, 'maior que');
     userEvent.click(buttonFilter);
-    expect(comparisonFilter.value).toBe('maior que');
-
-    userEvent.selectOptions(comparisonFilter, 'menor que');
-    userEvent.click(buttonFilter);
-    expect(comparisonFilter.value).toBe('menor que');
+    console.log(comparisonFilter.value);
+    expect(await comparisonFilter.value).toBe('maior que');
 
     userEvent.selectOptions(comparisonFilter, 'igual a');
+    userEvent.type(valueFilter, '1000');
     userEvent.click(buttonFilter);
-    expect(comparisonFilter.value).toBe('igual a');
+    expect(await comparisonFilter.value).toBe('igual a');
+
+    const buttonRemove = screen.getByRole('button', { name: /remover filtros/i });
+    expect(buttonRemove).toBeInTheDocument();
   });
-  // test('Verifica resposta da API', () => {
+  test('Testando menor que', async () => {
+    render(<App />);
+    // userEvent.selectOptions(comparisonFilter, 'menor que');
+    // userEvent.click(buttonFilter);
+    // expect(await comparisonFilter.value).toBe('menor que');
+    const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
+    const comparisonFilter = screen.getByRole('combobox', { name: /operador:/i });
+    const valueFilter = screen.getByRole('spinbutton');
+    const buttonFilter = screen.getByRole('button', { name: /adicionar filtro/i });
+
+    userEvent.selectOptions(columnFilter, 'orbital_period');
+    userEvent.selectOptions(comparisonFilter, 'menor que');
+    userEvent.type(valueFilter, '500');
+    userEvent.click(buttonFilter);
+    await waitFor(() => expect(comparisonFilter).toHaveValue('menor que'));
+    expect(await comparisonFilter.value).toBe('menor que');
+    expect(await columnFilter.value).toBe('population');
+
+    const allBtnRemove = screen.getAllByText(/remover/i);
+    userEvent.click(allBtnRemove[0]);
+  });
+  // test('a', () => {
   //   render(<App />);
   // });
+  test('Verifica resposta da API', async () => {
+    global.fetch = jest.fn(() => Promise.resolve({
+      json: () => Promise.resolve(testData),
+    }));
+    render(<App />);
+    expect(global.fetch).toHaveBeenCalledTimes(1);
+
+    const columnFilter = screen.getByTestId('column-filter');
+    const comparisonFilter = screen.getByTestId('comparison-filter');
+    const valueFilter = screen.getByTestId('value-filter');
+    const buttonFilter = screen.getByTestId('button-filter');
+
+    userEvent.selectOptions(columnFilter, 'diameter');
+    userEvent.selectOptions(comparisonFilter, 'maior que');
+    userEvent.selectOptions(comparisonFilter, 'menor que');
+    userEvent.type(valueFilter, '10200');
+    userEvent.click(buttonFilter);
+  });
+  test('Verifica as funcionalidades de excluir um filtro e todos simultâne', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
+    render(<App />);
+
+    const inputName = screen.getByTestId('name-filter');
+    const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
+    const comparisonFilter = screen.getByTestId('comparison-filter');
+    const valueFilter = screen.getByTestId('value-filter');
+    const buttonFilter = screen.getByTestId('button-filter');
+
+    userEvent.type(inputName, 'Tatooine');
+    userEvent.selectOptions(columnFilter, 'population');
+    userEvent.type(valueFilter, '10');
+    userEvent.selectOptions(comparisonFilter, 'maior que');
+    userEvent.click(buttonFilter);
+
+    const buttonRemove = screen.getAllByText('Remover');
+    expect(buttonRemove[0]).toBeInTheDocument();
+
+    userEvent.click(buttonRemove[0]);
+    expect(buttonRemove[0]).not.toBeInTheDocument();
+
+    const buttonRemoveAll = await screen.findByTestId('button-remove-filters');
+
+    expect(buttonRemoveAll).toBeInTheDocument();
+
+    userEvent.click(buttonRemoveAll);
+  });
+
+  test('Verifica se o filtro de nome funciona ao digitar algo', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
+    render(<App />);
+    const filterName = screen.getByTestId('name-filter');
+    userEvent.type(filterName, 'Hoth');
+
+    const tatooineName = await screen.findByText(/hoth/i);
+
+    expect(tatooineName).toBeInTheDocument();
+  });
 });
