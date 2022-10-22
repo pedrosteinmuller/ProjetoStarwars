@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import App from '../App';
 import testData from '../../cypress/mocks/testData';
@@ -35,41 +35,75 @@ describe('Testando aplicação StarWars', () => {
 
     userEvent.selectOptions(comparisonFilter, 'maior que');
     userEvent.click(buttonFilter);
-    console.log(comparisonFilter.value);
     expect(await comparisonFilter.value).toBe('maior que');
-
-    userEvent.selectOptions(comparisonFilter, 'igual a');
-    userEvent.type(valueFilter, '1000');
-    userEvent.click(buttonFilter);
-    expect(await comparisonFilter.value).toBe('igual a');
 
     const buttonRemove = screen.getByRole('button', { name: /remover filtros/i });
     expect(buttonRemove).toBeInTheDocument();
   });
-  test('Testando menor que', async () => {
+  test('Testando igual a', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
     render(<App />);
-    // userEvent.selectOptions(comparisonFilter, 'menor que');
-    // userEvent.click(buttonFilter);
-    // expect(await comparisonFilter.value).toBe('menor que');
+
     const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
     const comparisonFilter = screen.getByRole('combobox', { name: /operador:/i });
     const valueFilter = screen.getByRole('spinbutton');
     const buttonFilter = screen.getByRole('button', { name: /adicionar filtro/i });
+    const tatooineName = await screen.findByText(/tatooine/i);
+    expect(tatooineName).toBeInTheDocument();
 
-    userEvent.selectOptions(columnFilter, 'orbital_period');
-    userEvent.selectOptions(comparisonFilter, 'menor que');
-    userEvent.type(valueFilter, '500');
+    userEvent.selectOptions(columnFilter, 'population');
+    userEvent.selectOptions(comparisonFilter, 'igual a');
+    userEvent.type(valueFilter, '200000');
     userEvent.click(buttonFilter);
-    await waitFor(() => expect(comparisonFilter).toHaveValue('menor que'));
-    expect(await comparisonFilter.value).toBe('menor que');
-    expect(await columnFilter.value).toBe('population');
 
     const allBtnRemove = screen.getAllByText(/remover/i);
     userEvent.click(allBtnRemove[0]);
   });
-  // test('a', () => {
-  //   render(<App />);
-  // });
+  test('Testando maior que', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
+    render(<App />);
+
+    const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
+    const comparisonFilter = screen.getByRole('combobox', { name: /operador:/i });
+    const valueFilter = screen.getByRole('spinbutton');
+    const buttonFilter = screen.getByRole('button', { name: /adicionar filtro/i });
+    const bespinName = await screen.findByText(/tatooine/i);
+    expect(bespinName).toBeInTheDocument();
+
+    userEvent.selectOptions(columnFilter, 'orbital_period');
+    userEvent.selectOptions(comparisonFilter, 'maior que');
+    userEvent.type(valueFilter, '5000');
+    userEvent.click(buttonFilter);
+
+    const allBtnRemove = screen.getAllByText(/remover/i);
+    userEvent.click(allBtnRemove[0]);
+  });
+
+  test('Testando menor que', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
+    render(<App />);
+
+    const columnFilter = screen.getByRole('combobox', { name: /coluna:/i });
+    const comparisonFilter = screen.getByRole('combobox', { name: /operador:/i });
+    const valueFilter = screen.getByRole('spinbutton');
+    const buttonFilter = screen.getByRole('button', { name: /adicionar filtro/i });
+    const endorName = await screen.findByText(/tatooine/i);
+    expect(endorName).toBeInTheDocument();
+
+    userEvent.selectOptions(columnFilter, 'diameter');
+    userEvent.selectOptions(comparisonFilter, 'menor que');
+    userEvent.type(valueFilter, '5000');
+    userEvent.click(buttonFilter);
+
+    const allBtnRemove = screen.getAllByText(/remover/i);
+    userEvent.click(allBtnRemove[0]);
+  });
   test('Verifica resposta da API', async () => {
     global.fetch = jest.fn(() => Promise.resolve({
       json: () => Promise.resolve(testData),
