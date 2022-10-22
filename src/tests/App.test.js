@@ -131,4 +131,30 @@ describe('Testando aplicação StarWars', () => {
 
     expect(tatooineName).toBeInTheDocument();
   });
+
+  test('Verifica se ordenda de forma Ascendente e Desendente a coluna', async () => {
+    jest.spyOn(global, 'fetch').mockImplementation(async () => ({
+      json: async () => testData,
+    }));
+    render(<App />);
+    const columnSort = screen.getByTestId('column-sort');
+    const inputAsc = screen.getByTestId('column-sort-input-asc');
+    const InputDesc = screen.getByTestId('column-sort-input-desc');
+    const buttonOrder = screen.getByTestId('column-sort-button');
+
+    expect(columnSort).toBeInTheDocument();
+    expect(inputAsc).toBeInTheDocument();
+    expect(InputDesc).toBeInTheDocument();
+    expect(buttonOrder).toBeInTheDocument();
+
+    const tatooineName = await screen.findByText(/tatooine/i);
+    expect(tatooineName).toBeInTheDocument();
+
+    userEvent.selectOptions(columnSort, 'population');
+    userEvent.click(inputAsc);
+    userEvent.click(buttonOrder);
+
+    userEvent.click(InputDesc);
+    userEvent.click(buttonOrder);
+  });
 });

@@ -15,11 +15,17 @@ function Provider({ children }) {
   const [filterByNumeric, setFilterByNumeric] = useState([]);
   const [comparator, setComparator] = useState('maior que');
   const [quanty, setQuanty] = useState(0);
+  const [columnSort, setColumnSort] = useState('population');
+  const [sortRadio, setSortRadio] = useState('');
+  const [orderInfo, setOrderInfo] = useState({ order: { column: '', sort: '' } });
 
   const handleName = ({ target: { value } }) => { setName(value); };
   const handleColumn = ({ target: { value } }) => { setColumn(value); };
   const handleQuantity = ({ target: { value } }) => { setQuanty(value); };
   const handleComparator = ({ target: { value } }) => { setComparator(value); };
+  const columnSorted = ({ target: { value } }) => setColumnSort(value);
+  const sortAsc = ({ target: { value } }) => setSortRadio(value);
+  const sortDesc = ({ target: { value } }) => setSortRadio(value);
 
   const handleFilter = useCallback((arrayAllFilters) => {
     let newPlanets = data;
@@ -87,6 +93,25 @@ function Provider({ children }) {
     setOptions(arrayOptions);
   }, []);
 
+  const handleButtonSort = useCallback(({ order }) => {
+    setOrderInfo(order);
+
+    if (order.sort === 'ASC') {
+      const dataSort = data.sort(
+        (a, b) => b[order.column] - a[order.column],
+      );
+      setData(dataSort.sort(
+        (a, b) => a[order.column] - b[order.column],
+      ));
+    }
+    if (order.sort === 'DESC') {
+      const dataSort = data.sort(
+        (a, b) => b[order.column] - a[order.column],
+      );
+      setData(dataSort);
+    }
+  }, [data]);
+
   const context = useMemo(() => (
     { data,
       name,
@@ -96,16 +121,23 @@ function Provider({ children }) {
       data2,
       options,
       filterByNumeric,
+      columnSort,
+      sortRadio,
+      orderInfo,
       handleColumn,
+      handleButtonSort,
       handleComparator,
       handleQuantity,
       handleName,
       handleFilterSelect,
       removeAll,
       removeFilter,
-    }), [data, name, column, comparator, quanty,
-    data2, options, filterByNumeric,
-    handleFilterSelect, removeAll, removeFilter]);
+      columnSorted,
+      sortAsc,
+      sortDesc,
+    }), [data, name, column, comparator, quanty, data2,
+    options, filterByNumeric, columnSort, sortRadio, orderInfo,
+    handleFilterSelect, removeAll, removeFilter, handleButtonSort]);
 
   return (<MyContext.Provider value={ context }>{children}</MyContext.Provider>);
 }
